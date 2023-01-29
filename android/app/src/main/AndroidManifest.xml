@@ -14,7 +14,7 @@
     </queries>
 
    <application
-        android:label="langwhale"
+        android:label="Langwhale"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

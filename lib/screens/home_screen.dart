@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:langwhale/components/result.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:speech_to_text/speech_to_text.dart';
-import 'package:speech_to_text/speech_recognition_result.dart';
 
 import 'package:provider/provider.dart';
 
@@ -21,40 +19,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final TextEditingController _searchQueryController = TextEditingController();
   String _query = '';
-  String lang = 'en';
-
-  final SpeechToText _speechToText = SpeechToText();
-  bool _speechEnabled = false;
-  String _lastWords = '';
 
   @override
   void initState() {
     super.initState();
-    _initSpeech();
-  }
-
-  void _initSpeech() async {
-    _speechEnabled = await _speechToText.initialize();
-    setState(() {});
-  }
-
-  void _startListening() async {
-    await _speechToText.listen(onResult: _onSpeechResult);
-    setState(() {});
-  }
-
-  void _stopListening() async {
-    _searchQueryController.text = _lastWords;
-    Provider.of<DataProvider>(context)
-        .getData(language: lang, query: _lastWords);
-    await _speechToText.stop();
-    setState(() {});
-  }
-
-  void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-    });
   }
 
   void controllerHandler({required String id, required int start}) {
@@ -86,30 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('LangWhale'),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (String selected) {
-              lang = selected.toLowerCase().substring(0, 2);
-              Provider.of<DataProvider>(context, listen: false)
-                  .getData(language: selected, query: _query);
-            },
-            itemBuilder: (BuildContext context) {
-              return {'English', 'Russian'}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice.toLowerCase().substring(0, 2),
-                  child: Text(
-                    choice,
-                    style: TextStyle(
-                      color: lang == choice.toLowerCase().substring(0, 2)
-                          ? AppColors.secondary
-                          : AppColors.primary,
-                    ),
-                  ),
-                );
-              }).toList();
-            },
-          ),
-        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -174,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Provider.of<DataProvider>(context, listen: false)
                                 .isFirstFalse();
                             Provider.of<DataProvider>(context, listen: false)
-                                .getData(query: _query, language: lang);
+                                .getData(query: _query);
                           }
                         },
                         style: ButtonStyle(
@@ -195,40 +139,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 30),
                 context.watch<DataProvider>().isFirst
                     ? Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SizedBox(height: 50),
-                          _speechToText.isListening
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                    Text(
-                                      'Listening...',
-                                      style: TextStyle(
-                                        color: AppColors.primary,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 20),
-                                    Text(
-                                      _speechToText.isListening
-                                          ? _lastWords
-                                          : _speechEnabled
-                                              ? _lastWords
-                                              : 'Speech not available',
-                                    ),
-                                  ],
-                                )
-                              : Text(
-                                  'Use YouTube to improve your vocabulary. Langwhale provides you with the best examples from movies, series, cartoons and more. So that you can expand your vocabulary as fast as possible!',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: AppColors.primary, fontSize: 16),
-                                ),
+                          const SizedBox(height: 30),
+                          Text(
+                            'Use YouTube to improve your vocabulary. Langwhale provides you with the best examples from movies, series, cartoons and more. So that you can expand your vocabulary as fast as possible!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppColors.primary,
+                              fontSize: 16,
+                            ),
+                          ),
                         ],
                       )
                     : FutureBuilder(
@@ -278,12 +202,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-            _speechToText.isNotListening ? _startListening : _stopListening,
-        tooltip: 'Listen',
-        child: Icon(_speechToText.isNotListening ? Icons.mic_off : Icons.mic),
       ),
     );
   }

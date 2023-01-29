@@ -9,14 +9,6 @@ class DataProvider extends ChangeNotifier {
   bool _isFirst = true;
   bool get isFirst => _isFirst;
 
-  bool _voice = false;
-  bool get voice => _voice;
-
-  void voiceToggle() {
-    _voice = true;
-    notifyListeners();
-  }
-
   void isFirstFalse() {
     _isFirst = false;
     notifyListeners();
@@ -31,7 +23,7 @@ class DataProvider extends ChangeNotifier {
 
   Future<List<Langwhale>> get data => _data;
 
-  void getData({required String language, required String query}) {
-    _data = _langwhaleService.getData(query: query, language: language);
+  void getData({required String query}) {
+    _data = _langwhaleService.getData(query: query);
   }
 }

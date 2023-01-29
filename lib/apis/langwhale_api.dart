@@ -7,10 +7,9 @@ import '../models/langwhale_model.dart';
 import '../services/constants.dart';
 
 class LangwhaleService {
-  Future<List<Langwhale>> getData(
-      {String language = 'en', required String query}) async {
+  Future<List<Langwhale>> getData({required String query}) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/search?lang=$language&q=$query'),
+      Uri.parse('$baseUrl/search?lang=en&q=$query'),
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json; charset=utf-8',
